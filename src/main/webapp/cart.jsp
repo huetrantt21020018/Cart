@@ -15,7 +15,7 @@
     <body>
 
         <p>Giở hàng của bạn</p>
-        <form action="delete">
+        <form action="delete" method = "post">
             <table>
                 <tr>
                     <th></th>

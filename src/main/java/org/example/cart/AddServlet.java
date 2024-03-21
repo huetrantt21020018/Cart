@@ -14,13 +14,13 @@ import javax.servlet.http.*;
 @WebServlet(value = "/add")
 public class AddServlet extends HttpServlet {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         List<Item> items = Connector.select("store");
         for(Item item : items) {
             if(request.getParameter("" + item.getItemID()) != null) {
                 Map<String, String> map = new HashMap<>();
                 map.put("itemID", "" + item.getItemID());
-                map.put("count", "1");
+                map.put("count", request.getParameter("" + item.getItemID() + "_count"));
                 Connector.insert("cart", map);
             }
         }

@@ -12,7 +12,7 @@ import javax.servlet.annotation.*;
 @WebServlet(value = "/delete")
 public class DropServlet extends HttpServlet {
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Item> items = Connector.select("store");
         for(Item item : items) {
             if(request.getParameter("" + item.getItemID()) != null) {

@@ -10,20 +10,32 @@
 <html>
     <body>
         <p>Chọn mặt hàng muốn mua</p>
-        <form action="add">
-            <%
-                List<Item> items = (List<Item>) request.getAttribute("items");
-                for (Item item : items) {
-            %>
-            <input type="checkbox" name="<%= item.getItemID() %>">
-            <%= item.getName() %><br>
-            <%
-                }
-            %>
+        <form action="add" method="post">
+            <table>
+                <tr>
+                    <th></th>
+                    <th>Tên hàng</th>
+                    <th>Số lượng</th>
+                </tr>
+                <%
+                    List<Item> items;
+                    items = (List<Item>) request.getAttribute("items");
+                    for (Item item : items) {
+                %>
+                <tr>
+                    <td><input type="checkbox" name="<%= item.getItemID() %>"></td>
+                    <td><%= item.getName() %></td>
+                    <td><input type="number" name="<%= item.getItemID() %>_count"></td>
+                </tr>
+                <%
+                    }
+                %>
 
+            </table>
             <br>
             <input type="submit" value="Thêm vào giỏ">
         </form>
         <a href="cart">Xem giỏ hàng</a>
     </body>
 </html>
+
