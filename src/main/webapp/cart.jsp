@@ -14,7 +14,7 @@
     </head>
     <body>
 
-        <p>Giở hàng của bạn</p>
+        <p>Giỏ hàng của <%= session.getAttribute("name") %></p>
         <form action="delete" method = "post">
             <table>
                 <tr>

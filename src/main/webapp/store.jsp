@@ -9,7 +9,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
     <body>
-        <p>Chọn mặt hàng muốn mua</p>
+        <p><%= session.getAttribute("name") %> hãy chọn mặt hàng muốn mua</p>
         <form action="add" method="post">
             <table>
                 <tr>
