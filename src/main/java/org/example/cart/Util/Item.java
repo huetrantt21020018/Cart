@@ -1,16 +1,8 @@
 package org.example.cart.Util;
 
 public class Item {
-    int itemID;
-    String name;
-
-    @Override
-    public String toString() {
-        return "Item{" +
-                "itemID=" + itemID +
-                ", name='" + name + '\'' +
-                '}';
-    }
+    private int itemID;
+    private String name;
 
     public Item(int itemID, String name) {
         this.itemID = itemID;
@@ -23,13 +15,5 @@ public class Item {
 
     public String getName() {
         return name;
-    }
-
-    public void setItemID(int itemID) {
-        this.itemID = itemID;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 }

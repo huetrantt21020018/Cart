@@ -1,7 +1,6 @@
 package org.example.cart;
 
-import org.example.cart.Util.Item;
-import org.example.cart.Util.Order;
+import org.example.cart.Util.*;
 
 import java.util.*;
 import java.sql.*;
@@ -29,14 +28,16 @@ public class Connector {
         return null;
     }
 
-    static List<Item> select(String table) {
+    static List<ItemDTO> selectItem() {
         Statement stmt = getStatement();
 
-        String selectSql = "SELECT * from " + table;
-        List<Item> items= new ArrayList<>();
+        String selectSql = "SELECT * from store";
+        List<ItemDTO> items= new ArrayList<>();
         try (ResultSet resultSet = stmt.executeQuery(selectSql)) {
             while (resultSet.next()) {
-                items.add(new Item(resultSet.getInt(1), resultSet.getString(2)));
+                Item item = new Item(resultSet.getInt(1), resultSet.getString(2));
+                ItemDTO dto = ItemMapper.getInstance().toDTO(item);
+                items.add(dto);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -44,14 +45,16 @@ public class Connector {
         return items;
     }
 
-    static List<Order> joinSelect(String table1, String table2, String condition) {
+    static List<OrderDTO> selectOrder() {
         Statement stmt = getStatement();
 
-        String selectSql = "SELECT * from " + table1 + " join " + table2 + " on " + condition;
-        List<Order> items= new ArrayList<>();
+        String selectSql = "SELECT * from cart join store on cart.itemID = store.itemID";
+        List<OrderDTO> items= new ArrayList<>();
         try (ResultSet resultSet = stmt.executeQuery(selectSql)) {
             while (resultSet.next()) {
-                items.add(new Order(resultSet.getInt(1), resultSet.getString(4), resultSet.getInt(2)));
+                Order order = new Order(resultSet.getInt(1), resultSet.getInt(2));
+                OrderDTO dto = OrderMapper.getInstance().toDTO(order, resultSet.getString(4));
+                items.add(dto);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,14 +62,31 @@ public class Connector {
         return items;
     }
 
-    static List<Order> selectConditional(String table, String condition) {
+    static List<OrderDTO> selectOrderConditional(String condition) {
         Statement stmt = getStatement();
-        String selectSql = "SELECT * from " + table + " where " + condition;
-        List<Order> items= new ArrayList<>();
+        String selectSql = "SELECT * from cart where " + condition;
+        List<OrderDTO> items= new ArrayList<>();
         
         try (ResultSet resultSet = stmt.executeQuery(selectSql)) {
             while (resultSet.next()) {
-                items.add(new Order(resultSet.getInt(1), null, resultSet.getInt(2)));
+                items.add(new OrderDTO(resultSet.getInt(1), null, resultSet.getInt(2)));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
+
+    static List<ItemDTO> selectItemConditional(String condition) {
+        Statement stmt = getStatement();
+        String selectSql = "SELECT * from store where " + condition;
+        List<ItemDTO> items= new ArrayList<>();
+
+        try (ResultSet resultSet = stmt.executeQuery(selectSql)) {
+            while (resultSet.next()) {
+                Item item = new Item(resultSet.getInt(1), resultSet.getString(2));
+                ItemDTO dto = ItemMapper.getInstance().toDTO(item);
+                items.add(dto);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,53 +95,72 @@ public class Connector {
     }
 
     static void insert(String table, Map<String, String> values) {
+        String insertSql = "insert into " + table + " (";
+
+        int i = 0;
+        for(String x: values.keySet()) {
+            i++;
+            if(i < values.size()) insertSql += x + ", ";
+            else insertSql += x + ") values(";
+        }
+
+        i = 0;
+        for(String x: values.values()) {
+            i++;
+            if(i < values.size()) insertSql += x + ", ";
+            else insertSql += x + ")";
+        }
+
+        try {
+            System.out.println(insertSql);
+            stmt.executeUpdate(insertSql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void update(String table, Map<String, String> values) {
+        String updateSql = "update " + table + " set ";
+        int i = 0;
+        for(Map.Entry<String, String> pair : values.entrySet()) {
+            i++;
+            if(i < values.size())  updateSql += pair.getKey() + "=" + pair.getValue() + ", ";
+            else updateSql += pair.getKey() + "=" + pair.getValue();
+        }
+        updateSql += " where itemID=" + values.get("itemID");
+
+        try {
+            System.out.println(updateSql);
+            stmt.executeUpdate(updateSql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static void insertOrder(Map<String, String> values) {
         Statement stmt = getStatement();
         String condition = "itemID=" + values.get("itemID");
-        List<Order> items = selectConditional(table, condition);
+        List<OrderDTO> items = selectOrderConditional(condition);
 
         if(items.size() > 0) {
-            String updateSql = "update " + table + " set ";
             int cur = Integer.parseInt(values.get("count"));
             int add = items.get(0).getCount();
             values.replace("count", "" + (cur + add));
-
-            int i = 0;
-            for(Map.Entry<String, String> pair : values.entrySet()) {
-                i++;
-                if(i < values.size())  updateSql += pair.getKey() + "=" + pair.getValue() + ", ";
-                else updateSql += pair.getKey() + "=" + pair.getValue();
-            }
-            updateSql += " where itemID=" + values.get("itemID");
-
-            try {
-                System.out.println(updateSql);
-                stmt.executeUpdate(updateSql);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            update("cart", values);
         } else {
-            String insertSql = "insert into " + table + " (";
+            insert("cart", values);
+        }
+    }
 
-            int i = 0;
-            for(String x: values.keySet()) {
-                i++;
-                if(i < values.size()) insertSql += x + ", ";
-                else insertSql += x + ") values(";
-            }
+    static void insertItem(Map<String, String> values) {
+        Statement stmt = getStatement();
+        String condition = "itemID=" + values.get("itemID");
+        List<ItemDTO> items = selectItemConditional(condition);
 
-            i = 0;
-            for(String x: values.values()) {
-                i++;
-                if(i < values.size()) insertSql += x + ", ";
-                else insertSql += x + ")";
-            }
-
-            try {
-                System.out.println(insertSql);
-                stmt.executeUpdate(insertSql);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if(items.size() > 0) {
+            update("store", values);
+        } else {
+            insert("store", values);
         }
     }
 

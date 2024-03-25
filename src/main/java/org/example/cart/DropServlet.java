@@ -1,10 +1,9 @@
 package org.example.cart;
 
-import org.example.cart.Util.Item;
+import org.example.cart.Util.ItemDTO;
 
 import java.io.*;
 import java.util.List;
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 
@@ -13,8 +12,8 @@ import javax.servlet.annotation.*;
 public class DropServlet extends HttpServlet {
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        List<Item> items = Connector.select("store");
-        for(Item item : items) {
+        List<ItemDTO> items = Connector.selectItem();
+        for(ItemDTO item : items) {
             if(request.getParameter("" + item.getItemID()) != null) {
                 Connector.delete("cart", "itemID=" + item.getItemID());
             }

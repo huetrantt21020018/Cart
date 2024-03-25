@@ -1,5 +1,5 @@
 <%@ page import="java.util.List" %>
-<%@ page import="org.example.cart.Util.Item" %><%--
+<%@ page import="org.example.cart.Util.ItemDTO" %><%--
   Created by IntelliJ IDEA.
   User: HueTTT
   Date: 3/19/2024
@@ -18,9 +18,9 @@
                     <th>Số lượng</th>
                 </tr>
                 <%
-                    List<Item> items;
-                    items = (List<Item>) request.getAttribute("items");
-                    for (Item item : items) {
+                    List<ItemDTO> items;
+                    items = (List<ItemDTO>) request.getAttribute("items");
+                    for (ItemDTO item : items) {
                 %>
                 <tr>
                     <td><input type="checkbox" name="<%= item.getItemID() %>"></td>

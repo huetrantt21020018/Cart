@@ -1,6 +1,6 @@
 package org.example.cart;
 
-import org.example.cart.Util.Order;
+import org.example.cart.Util.OrderDTO;
 
 import java.io.*;
 import java.util.List;
@@ -12,10 +12,10 @@ import javax.servlet.annotation.*;
 
 @WebServlet(name = "cart", value = "/cart")
 public class Cart extends HttpServlet {
-    List<Order> items;
+    List<OrderDTO> items;
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        items = Connector.joinSelect("cart", "store", "cart.itemID = store.itemID");
+        items = Connector.selectOrder();
         request.setAttribute("items", items);
         System.out.println(items);
         RequestDispatcher rd = request.getRequestDispatcher("cart.jsp");
